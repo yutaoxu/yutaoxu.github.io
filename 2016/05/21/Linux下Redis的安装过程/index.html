@@ -1,0 +1,893 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="CentOS,Linux,Redis," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言在linux操作系统下安装redis的教程，网上已经烂大街了，笔者觉着自己在配置过程中有些操作不太理解，所以在此重新梳理一下安装过程，并对一些要点着重进行说明。
+笔者的服务器为CentOS 6.5，redis下载的版本为当前最新的稳定版本。
+下载redis下载redis的方式主要有两种，一种是自己下载tar.gz包，然后上传到服务器上进行解压缩。另一种是通过wget命令直接下载redis的压缩">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux下Redis的安装过程">
+<meta property="og:url" content="http://chace0120.github.io/2016/05/21/Linux下Redis的安装过程/index.html">
+<meta property="og:site_name" content="chace's blogs">
+<meta property="og:description" content="前言在linux操作系统下安装redis的教程，网上已经烂大街了，笔者觉着自己在配置过程中有些操作不太理解，所以在此重新梳理一下安装过程，并对一些要点着重进行说明。
+笔者的服务器为CentOS 6.5，redis下载的版本为当前最新的稳定版本。
+下载redis下载redis的方式主要有两种，一种是自己下载tar.gz包，然后上传到服务器上进行解压缩。另一种是通过wget命令直接下载redis的压缩">
+<meta property="og:updated_time" content="2017-03-28T13:43:38.210Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux下Redis的安装过程">
+<meta name="twitter:description" content="前言在linux操作系统下安装redis的教程，网上已经烂大街了，笔者觉着自己在配置过程中有些操作不太理解，所以在此重新梳理一下安装过程，并对一些要点着重进行说明。
+笔者的服务器为CentOS 6.5，redis下载的版本为当前最新的稳定版本。
+下载redis下载redis的方式主要有两种，一种是自己下载tar.gz包，然后上传到服务器上进行解压缩。另一种是通过wget命令直接下载redis的压缩">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chace0120.github.io/2016/05/21/Linux下Redis的安装过程/"/>
+
+
+
+
+
+  <title> Linux下Redis的安装过程 | chace's blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?de9626072cacc18e044754e40624cb5f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">chace's blogs</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">nice to meet you</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://chace0120.github.io/2016/05/21/Linux下Redis的安装过程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="chace">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xhr.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="chace's blogs">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux下Redis的安装过程
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-21T10:50:40+08:00">
+                2016-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/开发笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">开发笔记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/05/21/Linux下Redis的安装过程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2016/05/21/Linux下Redis的安装过程/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在linux操作系统下安装redis的教程，网上已经烂大街了，笔者觉着自己在配置过程中有些操作不太理解，所以在此重新梳理一下安装过程，并对一些要点着重进行说明。</p>
+<p>笔者的服务器为CentOS 6.5，redis下载的版本为当前最新的稳定版本。</p>
+<h3 id="下载redis"><a href="#下载redis" class="headerlink" title="下载redis"></a>下载redis</h3><p>下载redis的方式主要有两种，一种是自己下载tar.gz包，然后上传到服务器上进行解压缩。另一种是通过wget命令直接下载redis的压缩包到服务器，然后解压缩。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">wget http://download.redis.io/releases/redis-3.0.5.tar.gz</div></pre></td></tr></table></figure>
+<p>看到此处时，根据自己的需要去选择redis的版本。</p>
+<a id="more"></a>
+<h3 id="编译安装redis"><a href="#编译安装redis" class="headerlink" title="编译安装redis"></a>编译安装redis</h3><p>下载好redis的tar.gz包后，在指定的位置进行解压缩：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tar -xzvf redis-3.0.5.tar.gz</div></pre></td></tr></table></figure>
+<p>进入解压缩后的程序目录，使用make对redis进行编译：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">cd redis-3.0.5</div><div class="line"></div><div class="line">make</div></pre></td></tr></table></figure>
+<p>执行完make后，会在src目录中发现生成了几个可执行文件，如：</p>
+<ul>
+<li>redis-server：redis服务器启动程序</li>
+<li>redis-cli：Redis客户端操作工具。也可以用telnet根据其纯文本协议来操作</li>
+<li>redis-benchmark：Redis性能测试工具</li>
+<li>redis-check-aof：数据修复工具</li>
+<li>redis-check-dump：检查导出工具</li>
+</ul>
+<p>手动将上述的执行文件复制到/usr/local/bin下，即可在任意位置执行这些redis命令了，不需要每次执行都要带上执行文件的路径位置了。</p>
+<p>或者你还可以执行make install命令，默认会自动将生成的可执行文件复制到/usr/local/bin下，你也可以通过命令参数来指定安装的目录位置，具体查看redis程序目录下的ReadMe文件。</p>
+<blockquote>
+<p>可能你会问，linux下安装程序，一般都是需要./configure,make和make install三个步骤，为何这里没有configure？那是因为configure是程序安装目录下的一个可执行脚本，一般用来生成 Makefile，为下一步的编译做准备。而redis的安装包中已经存在一个Makefile，所以自然省去了configure这步。</p>
+</blockquote>
+<p>在make命令执行后，你可以选择不执行make install命令，自己手动的将程序目录下src目录中的对应可执行文件copy到/usr/bin下，这招是从oschina的红薯<a href="http://www.oschina.net/question/12_18065?fromerr=uNX17fsi" target="_blank" rel="external">那里</a>学来的。</p>
+<p>当然你可能会有疑惑，make install是安装到了/usr/local/bin下，而自己copy为何在/usr/bin下。其实这两个不同的位置都可以起到同一个作用，在任何位置执行redis相关命令。</p>
+<ul>
+<li>/usr/bin下面的通常都是系统预装的可执行程序，会随着系统升级而改变</li>
+<li>/usr/local/bin目录是给用户放置自己的可执行程序的地方，推荐放在这里，不会被系统升级而覆盖同名文件</li>
+<li>如果两个目录下有相同的可执行程序，谁优先执行受到PATH环境变量的影响</li>
+</ul>
+<h3 id="配置redis"><a href="#配置redis" class="headerlink" title="配置redis"></a>配置redis</h3><p>将redis的配置文件复制到/etc/目录下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cp redis.conf /etc/</div></pre></td></tr></table></figure>
+<p>为了让redis后台运行，修改redis.conf文件，修改daemonize配置项为yes：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vi /etc/redis.conf</div></pre></td></tr></table></figure>
+<h3 id="运行redis"><a href="#运行redis" class="headerlink" title="运行redis"></a>运行redis</h3><p>完成上述步骤后，启动redis：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">redis-server /etc/redis.conf</div></pre></td></tr></table></figure>
+<p>检查redis是否启动成功：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ps -ef | grep redis</div></pre></td></tr></table></figure>
+<p>看到类似下面的一行，表示启动成功：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">root     18443     1  0 13:05 ?        00:00:00 ./redis-server *:6379</div></pre></td></tr></table></figure>
+<p>至此redis已经安装运行完毕，下载的redis安装包和解压缩出来的目录可以删除了。</p>
+<p>如果需要设置redis开机启动项，点击<a href="http://itbilu.com/linux/management/4kB2ninp.html" target="_blank" rel="external">这里</a>。</p>
+<h3 id="redis重点配置项说明"><a href="#redis重点配置项说明" class="headerlink" title="redis重点配置项说明"></a>redis重点配置项说明</h3><ul>
+<li>daemonize：是否以后台daemon方式运行</li>
+<li>pidfile：pid文件位置</li>
+<li>port：监听的端口号</li>
+<li>timeout：请求超时时间</li>
+<li>loglevel：log信息级别</li>
+<li>logfile：log文件位置</li>
+<li>databases：开启数据库的数量</li>
+<li>save * *：保存快照的频率，第一个<em>表示多长时间，第三个</em>表示执行多少次写操作。在一定时间内执行一定数量的写操作时，自动保存快照。可设置多个条件</li>
+<li>rdbcompression：是否使用压缩</li>
+<li>dbfilename：数据快照文件名（只是文件名）</li>
+<li>dir：数据快照的保存目录（仅目录）</li>
+<li>appendonly：是否开启appendonlylog，开启的话每次写操作会记一条log，这会提高数据抗风险能力，但影响效率</li>
+<li>appendfsync：appendonlylog如何同步到磁盘。三个选项，分别是每次写都强制调用fsync、每秒启用一次fsync、不调用fsync等待系统自己同步</li>
+</ul>
+<h3 id="最佳配置实践"><a href="#最佳配置实践" class="headerlink" title="最佳配置实践"></a>最佳配置实践</h3><p>进入到redis的解压目录下，开始进行如下的配置操作：</p>
+<ul>
+<li>创建配置文件和数据文件的存储位置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo mkdir /etc/redis</div><div class="line">sudo mkdir /var/redis</div></pre></td></tr></table></figure>
+<ul>
+<li>复制redis解压包中的启动脚本到操作系统的自启动目录下，建议重命名文件时加上端口号</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo cp ./utils/redis_init_script /etc/init.d/redis_6379</div></pre></td></tr></table></figure>
+<ul>
+<li>编辑自启动的redis脚本</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo vi /etc/init.d/redis_6379</div></pre></td></tr></table></figure>
+<p>将其中<strong>REDISPORT</strong>改为实际使用的端口号。仔细查看脚本中的代码，会发现其中pid文件路径和配置文件名称都依赖于端口号。</p>
+<ul>
+<li>复制配置文件到etc下</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo cp ./redis.conf /etc/redis/6379.conf</div></pre></td></tr></table></figure>
+<p>可以看到，实际使用的配置文件以端口号来命名，这样自启动脚本执行时就会使用这个配置文件。</p>
+<ul>
+<li>创建redis的工作数据目录，建议以端口进行区分</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo mkdir /var/redis/6379</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/CentOS/" rel="tag"># CentOS</a>
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/13/Maven项目多模块的打包/" rel="next" title="Maven项目多模块的打包">
+                <i class="fa fa-chevron-left"></i> Maven项目多模块的打包
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/23/CentOS下安装Nginx/" rel="prev" title="CentOS下安装Nginx">
+                CentOS下安装Nginx <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/xhr.jpg"
+               alt="chace" />
+          <p class="site-author-name" itemprop="name">chace</p>
+           
+              <p class="site-description motion-element" itemprop="description">Good good study, day day up!</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/chace0120" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://my.oschina.net/angerbaby" target="_blank" title="OSChina">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  OSChina
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#下载redis"><span class="nav-number">2.</span> <span class="nav-text">下载redis</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编译安装redis"><span class="nav-number">3.</span> <span class="nav-text">编译安装redis</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置redis"><span class="nav-number">4.</span> <span class="nav-text">配置redis</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行redis"><span class="nav-number">5.</span> <span class="nav-text">运行redis</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis重点配置项说明"><span class="nav-number">6.</span> <span class="nav-text">redis重点配置项说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最佳配置实践"><span class="nav-number">7.</span> <span class="nav-text">最佳配置实践</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">chace</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://chace0120.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://chace0120.github.io/2016/05/21/Linux下Redis的安装过程/';
+          this.page.identifier = '2016/05/21/Linux下Redis的安装过程/';
+          this.page.title = 'Linux下Redis的安装过程';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://chace0120.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

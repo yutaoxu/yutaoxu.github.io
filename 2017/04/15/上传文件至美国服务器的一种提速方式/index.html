@@ -1,0 +1,826 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="运维," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言笔者在公司负责的项目是服务于美国用户的，应美国用户的要求，将系统部署在了Amazon EC2中。可能Amazon在美方心中已经先入为主了吧，用户总觉着使用阿里云不够放心。
+之后系统的每次迭代更新、部署，笔者都在与EC2打交道。使用的是Mobaxterm工具，通过SSH和SFTP与服务器进行命令输入和文件传输。但就是在公司安装的号称电信企业级宽带的网络环境（200M）下，上传文件至EC2依然非常">
+<meta property="og:type" content="article">
+<meta property="og:title" content="上传文件至美国服务器的一种提速方式">
+<meta property="og:url" content="http://chace0120.github.io/2017/04/15/上传文件至美国服务器的一种提速方式/index.html">
+<meta property="og:site_name" content="chace's blogs">
+<meta property="og:description" content="前言笔者在公司负责的项目是服务于美国用户的，应美国用户的要求，将系统部署在了Amazon EC2中。可能Amazon在美方心中已经先入为主了吧，用户总觉着使用阿里云不够放心。
+之后系统的每次迭代更新、部署，笔者都在与EC2打交道。使用的是Mobaxterm工具，通过SSH和SFTP与服务器进行命令输入和文件传输。但就是在公司安装的号称电信企业级宽带的网络环境（200M）下，上传文件至EC2依然非常">
+<meta property="og:image" content="http://chace0120.github.io/2017/04/15/上传文件至美国服务器的一种提速方式/img1.jpg">
+<meta property="og:image" content="http://chace0120.github.io/2017/04/15/上传文件至美国服务器的一种提速方式/img2.jpg">
+<meta property="og:image" content="http://chace0120.github.io/2017/04/15/上传文件至美国服务器的一种提速方式/img3.jpg">
+<meta property="og:image" content="http://chace0120.github.io/2017/04/15/上传文件至美国服务器的一种提速方式/img4.jpg">
+<meta property="og:image" content="http://chace0120.github.io/2017/04/15/上传文件至美国服务器的一种提速方式/img5.jpg">
+<meta property="og:updated_time" content="2017-04-15T01:26:09.882Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="上传文件至美国服务器的一种提速方式">
+<meta name="twitter:description" content="前言笔者在公司负责的项目是服务于美国用户的，应美国用户的要求，将系统部署在了Amazon EC2中。可能Amazon在美方心中已经先入为主了吧，用户总觉着使用阿里云不够放心。
+之后系统的每次迭代更新、部署，笔者都在与EC2打交道。使用的是Mobaxterm工具，通过SSH和SFTP与服务器进行命令输入和文件传输。但就是在公司安装的号称电信企业级宽带的网络环境（200M）下，上传文件至EC2依然非常">
+<meta name="twitter:image" content="http://chace0120.github.io/2017/04/15/上传文件至美国服务器的一种提速方式/img1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://chace0120.github.io/2017/04/15/上传文件至美国服务器的一种提速方式/"/>
+
+
+
+
+
+  <title> 上传文件至美国服务器的一种提速方式 | chace's blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?de9626072cacc18e044754e40624cb5f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">chace's blogs</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">nice to meet you</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://chace0120.github.io/2017/04/15/上传文件至美国服务器的一种提速方式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="chace">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xhr.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="chace's blogs">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                上传文件至美国服务器的一种提速方式
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-15T09:29:40+08:00">
+                2017-04-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/系统运维/" itemprop="url" rel="index">
+                    <span itemprop="name">系统运维</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/15/上传文件至美国服务器的一种提速方式/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2017/04/15/上传文件至美国服务器的一种提速方式/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>笔者在公司负责的项目是服务于美国用户的，应美国用户的要求，将系统部署在了Amazon EC2中。可能Amazon在美方心中已经先入为主了吧，用户总觉着使用阿里云不够放心。</p>
+<p>之后系统的每次迭代更新、部署，笔者都在与EC2打交道。使用的是Mobaxterm工具，通过SSH和SFTP与服务器进行命令输入和文件传输。但就是在公司安装的号称电信企业级宽带的网络环境（200M）下，上传文件至EC2依然非常乏力。系统更新部署一般选择在美国半夜时间，也就是中国的下午3点到4点之间最佳，恰恰这个时间段内，上传文件十分不稳定，压缩文件区区6.5M，经常会上传一半就会挂掉，还需要手动重新上传。这样的工作效率是非常低的，从上传压缩文件到完成页面、服务的部署，笔者可能需要花费将近一下午的工作时间。<br><a id="more"></a></p>
+<h3 id="利用网盘提速"><a href="#利用网盘提速" class="headerlink" title="利用网盘提速"></a>利用网盘提速</h3><p>既然直接上传很吃力的话，笔者想着换种间接的上传方式。将需要部署的文件先上传至可以快速上传的位置，然后在EC2中使用wget命令进行下载，这样可以减少上传文件所消耗的时间。比如百度网盘，从国内的网络环境上传文件至百度网盘中，速度还是杠杠的。然而笔者在EC2中使用wget命令从百度网盘提供的共享链接下载文件时，依然难以避免跨国网络通信的瓶颈，下载完成的时间遥不可及……</p>
+<p>既然跨国网络通信瓶颈暂时无法解决，笔者再换一种方式！找了个国外的网盘服务-<a href="https://www.dropbox.com/" target="_blank" rel="external">Dropbox</a>，这个网盘服务支持中文，操作也简便。为免费用户提供的免费空间有2G，足以满足笔者的需要。</p>
+<p>首先将Dropbox安装到本地PC中，然后安装教程将需要部署的文件放到PC指定的目录位置，Dropbox程序会自动将文件同步上传到网盘中。</p>
+<img src="/2017/04/15/上传文件至美国服务器的一种提速方式/img1.jpg" alt="img1.jpg" title="">
+<p>然后，点击任务栏中的Dropbox图标，可以查看同步上传完成的进度。</p>
+<img src="/2017/04/15/上传文件至美国服务器的一种提速方式/img2.jpg" alt="img2.jpg" title="">
+<p>同步完成后，可以访问网盘地址，获取共享的链接地址。</p>
+<img src="/2017/04/15/上传文件至美国服务器的一种提速方式/img3.jpg" alt="img3.jpg" title="">
+<img src="/2017/04/15/上传文件至美国服务器的一种提速方式/img4.jpg" alt="img4.jpg" title="">
+<p>点击生成链接后，复制生成的共享链接地址。</p>
+<img src="/2017/04/15/上传文件至美国服务器的一种提速方式/img5.jpg" alt="img5.jpg" title="">
+<p>最后，利用复制的共享链接地址，使用wget命令在EC2中指定的目录下可以“飞速”地将部署文件下载下来。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">wget -O update.zip &quot;https://www.dropbox.com/s/xbak1k6xzleyig3/update.zip?dl=0&quot;</div></pre></td></tr></table></figure>
+<p>为什么用Dropbox，下载速度会很快？因为Dropbox是美国的网盘服务，所以使美国区域的EC2跟美国区域的网盘服务进行通信传输，自然就像家门口窜门儿似的。</p>
+<p>值得称赞的是，从本地PC同步上传文件到Dropbox的速度还是可以容忍的，也不会突然中断。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>以上就是笔者暂时想出的一招，可以提升部署文件到大洋远方的美方服务器的效率。如果你有更好的办法，欢迎分享~</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/运维/" rel="tag"># 运维</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/25/关于Intellij-IDEA中的Live-Templates实践/" rel="next" title="关于Intellij IDEA中的Live Templates实践">
+                <i class="fa fa-chevron-left"></i> 关于Intellij IDEA中的Live Templates实践
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/xhr.jpg"
+               alt="chace" />
+          <p class="site-author-name" itemprop="name">chace</p>
+           
+              <p class="site-description motion-element" itemprop="description">Good good study, day day up!</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/chace0120" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://my.oschina.net/angerbaby" target="_blank" title="OSChina">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  OSChina
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用网盘提速"><span class="nav-number">2.</span> <span class="nav-text">利用网盘提速</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">chace</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://chace0120.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://chace0120.github.io/2017/04/15/上传文件至美国服务器的一种提速方式/';
+          this.page.identifier = '2017/04/15/上传文件至美国服务器的一种提速方式/';
+          this.page.title = '上传文件至美国服务器的一种提速方式';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://chace0120.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
